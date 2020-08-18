@@ -2,6 +2,7 @@
 Some small running examples and some short notes on it
 
 ## libgdx-example01
+An example for [stackoverflow-question](https://stackoverflow.com/questions/63446137/3d-background-in-libgdx-without-using-blender-fbx-conv)
 
 *originalinput* is wxh: 5184x3888
 Imagemagick:
