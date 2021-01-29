@@ -1,0 +1,64 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>io.github.orientdb</groupId>
+	<artifactId>example01</artifactId>
+	<name>example01</name>
+	<version>1.0.0-SNAPSHOT</version>
+
+	<properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    </properties>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.8.1</version>
+				<configuration>
+					<release>11</release>
+					<annotationProcessorPaths>
+						<path>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok</artifactId>
+							<version>1.18.18</version>
+						</path>
+					</annotationProcessorPaths>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+	
+	<dependencies>
+		<!-- 2020.01.29: 3.1.7 is newest version -->
+		<dependency>
+			<groupId>com.orientechnologies</groupId>
+			<artifactId>orientdb-gremlin</artifactId>
+			<version>3.1.7</version>
+		</dependency>
+		<!--    Transitively uses 3.4.7. 2020.01.29: Available is 3.4.10, but there will be a NoSuchMethodError... 		 
+				<dependency>
+					<groupId>org.apache.tinkerpop</groupId>
+					<artifactId>tinkergraph-gremlin</artifactId>
+					<version>3.4.7</version>
+				</dependency>
+		 -->
+		<!-- 2020.01.29: 2.12.1 is newest version -->
+		<dependency>
+			<groupId>com.fasterxml.jackson.dataformat</groupId>
+			<artifactId>jackson-dataformat-yaml</artifactId>
+			<version>2.12.1</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>1.18.18</version>
+			<scope>provided</scope>
+		</dependency>
+	</dependencies>
+</project>

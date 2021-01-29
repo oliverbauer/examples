@@ -1,0 +1,13 @@
+name: Shining
+director: Stanley Kubrick
+basedOn:
+    title: shining
+    author: Stephen King
+
+actors:
+- name: Jack Nicholson
+  role: Jack Torrance
+- name: Shelley Duvall
+  role: Wendy Torrance
+- name: Danny Lloyd
+  role: Danny Torrance

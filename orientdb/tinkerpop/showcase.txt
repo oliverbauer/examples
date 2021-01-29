@@ -1,0 +1,60 @@
+1.) Start Server (run bin/server.sh) 
+2.) Visit http://localhost:2480/studio/index.html#/database/demodb/graph
+
+Show everything which is reachable from Persons up to depth 10, but maximal 200 nodes/edges:
+select * from (traverse both() from Person while $depth <= 10) limit 200
+
+Cleanup:
+delete vertex from Book
+delete vertex from Person
+delete vertex from Movie
+	  
+Show the shortest path from Dean R. Koontz to Bruce Willis:
+SELECT expand(path) FROM (
+  SELECT shortestPath($from, $to) AS path 
+  LET 
+    $from = (SELECT FROM Person WHERE name='Dean R. Koontz'), 
+    $to = (SELECT FROM Person WHERE name='Bruce Willis') 
+  UNWIND path
+)
+
+You should get:
+Dean R. Koontz                   Vertex-Label: Person
+    |
+    |                            Edge-Label: Author_of
+    |
+Odd Thomas - Die Anbetung        Vertex-Label: Book
+    |
+    |                            Edge-Label: Character_of
+    |
+Odd Thomas                       Vertex-Label: Person
+    |
+    |                            Edge-Label: Role
+    |
+Anton Yelchin                    Vertex-Label: Person
+    |
+    |                            Edge-Label: Actor
+    |
+Terminator: Die Erlösung         Vertex-Label: Movie
+    |
+    |                            Edge-Label: Actor
+    |
+John Connor                      Vertex-Label: Person
+    |
+    |                            Edge-Label: Role
+    |
+Terminator 2: Tag der Abrechnung Vertex-Label: Movie
+    |
+    |                            Edge-Label: Actor
+    |
+Arnold Schwarzenegger            Vertex-Label: Person
+    |
+    |                            Edge-Label: Actor
+    |
+The Expandebles                  Vertex-Label: Movie
+    |
+    |                            Edge-Label: Actor
+    |
+Bruce Willis                     Vertex-Label: Person
+
+Sure, labels and properties could be optimized...
