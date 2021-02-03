@@ -1,6 +1,14 @@
 # examples
 Some small running examples and some short notes on it
 
+## orientdb-tinkerpop
+
+Downloads some actor informations of a few movies from (german) [Wikipedia](https://de.wikipedia.org/wiki/Wikipedia:Hauptseite) (parsed with [jsoup](https://jsoup.org/)). Some temporary yaml-files will be created (loaded with [Jackson](https://github.com/FasterXML/jackson)) that will serve as input to [OrientDB](https://www.orientdb.org/) (submitted with [Apache TinkerPop](https://tinkerpop.apache.org/)).
+
+The following Screenshot depicts a shortest path between two movies:
+
+![Image of shortestpath](https://github.com/oliverbauer/examples/blob/master/orientdb/tinkerpop/src/main/screenshots/shortestPath.jpg)
+
 ## libgdx-example01
 An example for [stackoverflow-question](https://stackoverflow.com/questions/63446137/3d-background-in-libgdx-without-using-blender-fbx-conv)
 
