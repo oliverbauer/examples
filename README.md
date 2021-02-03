@@ -17,7 +17,9 @@ and run the main class
 ```
 examples/orientdb/tinkerpop$ mvn exec:java -Dexec.mainClass=io.github.orientdb.example.Main
 ```
-(you maybe need to create a demodb and use admin/admin as username/password - i can't remember. Otherwise change Main.java for your needs)
+You maybe need to create a demodb and use admin/admin as username/password - i can't remember. Otherwise change Main.java for your needs.
+
+Check out the readme.txt for some simple queries and how to remove nodes.
 
 ## libgdx-example01
 An example for [stackoverflow-question](https://stackoverflow.com/questions/63446137/3d-background-in-libgdx-without-using-blender-fbx-conv)
