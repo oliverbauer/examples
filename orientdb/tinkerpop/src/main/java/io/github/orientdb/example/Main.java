@@ -1,28 +1,36 @@
 package io.github.orientdb.example;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.tinkerpop.gremlin.orientdb.OrientGraphFactory;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
+import io.github.orientdb.example.data.WikipediaDataset;
 import io.github.orientdb.example.entities.Actor;
-import io.github.orientdb.example.entities.Book;
 import io.github.orientdb.example.entities.Movie;
 
 public class Main {
-	public static void main(String args[]) throws JsonParseException, JsonMappingException, IOException, URISyntaxException {
+	private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
+	
+	public static void main(String[] args) throws IOException {
+		File tempDir = Files.createTempDirectory("").toFile();
+		
+		createMovieYamlFilesFromWikipedia(tempDir.getAbsolutePath());
+		
 		OrientGraphFactory orientGraphFactory = new OrientGraphFactory("remote:localhost:2424/demodb");
 		GraphTraversalSource g = orientGraphFactory.getTx().traversal();
 		
@@ -30,54 +38,8 @@ public class Main {
 		mapper.findAndRegisterModules();
 		mapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
 		
-	    for (File file : getFilesFromResource("yaml/books")) {
-			InputStream is = Main.class.getResourceAsStream("/yaml/books/"+file.getName());
-
-			Book book = mapper.readValue(is, Book.class);
-			
-			GraphTraversal<Vertex,Vertex> bookV = g.addV("Book");
-			bookV.property("title", book.getTitle());
-			if (book.getAuthor() != null) {
-				bookV.property("author", book.getAuthor());
-			}
-			if (book.getPublisher() != null) {
-				bookV.property("publisher", book.getPublisher());
-			}
-			Vertex bookVertex = bookV.next(); // submit to database
-			System.out.println("Added Book with title "+book.getTitle());
-	
-			// Author => Book
-			GraphTraversal<Vertex, Vertex> authorTraversal = g.V().hasLabel("Person").has("name", book.getAuthor());
-			if (authorTraversal.hasNext()) {
-				Vertex authorVertex = authorTraversal.next();
-				authorVertex.addEdge("Author_of", bookVertex);
-			} else {
-				Vertex authorVertex = g.addV("Person").property("name", book.getAuthor()).next();
-				authorVertex.addEdge("Author_of", bookVertex);
-			}
-			
-			if (book.getCharacters() != null && !book.getCharacters().isEmpty()) {
-				for (String character : book.getCharacters()) {
-					
-					boolean exists = g.V().has("name", character).hasNext();
-					
-					Vertex characterVertex;
-					if (!exists) {
-						System.out.println("  Added Person with name "+character+" and connected it to book "+book.getTitle());
-						characterVertex = g.addV("Person").property("name", character).next();
-						g.addE("Character_of").from(characterVertex).to(bookVertex).next();
-					} else {
-						// Already connects? TODO if not: Add connection
-						System.out.println("  Found Person with name "+character+". Connected it to book "+book.getTitle());
-						characterVertex = g.V().has("name", character).next();
-						g.addE("Character_of").from(characterVertex).to(bookVertex).next();
-					}
-				}
-			}
-	    }
-		
-	    for (File file : getFilesFromResource("yaml/movies")) {
-			InputStream is = Main.class.getResourceAsStream("/yaml/movies/"+file.getName());
+	    for (File file : tempDir.listFiles()) {
+			InputStream is = new FileInputStream(file);
 			Movie movie = mapper.readValue(is, Movie.class);
 			
 			String movieName = movie.getName();
@@ -87,7 +49,7 @@ public class Main {
 			movieV = movieV.property("name", movieName);
 			
 			Vertex movieVertex = movieV.next(); // submit to database
-			System.out.println("Added Movie with name "+movieName);
+			LOGGER.info("Added Movie with name {}", movieName);
 			
 			if (actors != null && !actors.isEmpty()) {
 				for (Actor actor : actors) {
@@ -97,38 +59,16 @@ public class Main {
 					boolean exists = g.V().hasLabel("Person").has("name", personName).hasNext();
 					Vertex characterVertex;
 					if (!exists) {
-						System.out.println("  Created Person(real) with name "+personName+". Created actor to Movie "+movieName);
+						LOGGER.info("  Created Person(real) with name {}. Created actor to Movie {}", personName, movieName);
 						characterVertex = g
 							.addV("Person")
 							.property("name", personName)
 							.next();
 						characterVertex.addEdge("Actor", movieVertex);
 					} else {
-						// Already connects? TODO if not: Add connection
-						System.out.println("  Found Person(real) with name "+personName+". Created actor to Movie "+movieName);
+						LOGGER.info("  Found Person(real) with name {}. Created actor to Movie {}", personName, movieName);
 						characterVertex = g.V().has("name", personName).next();
 						characterVertex.addEdge("Actor", movieVertex);
-					}
-					
-					String role = actor.getRole();
-					exists = g.V().hasLabel("Person").has("name", role).hasNext();
-					Vertex roleVertex;
-					if (!exists) {
-						System.out.println("  Created Person(role) with name "+role+". Created Role to Movie "+movieName);
-						roleVertex = g
-							.addV("Person")
-							.property("name", role)
-							.next();
-						characterVertex.addEdge("Role", roleVertex);
-						
-						roleVertex.addEdge("Role", movieVertex);
-					} else {
-						// Already connects? TODO if not: Add connection
-						System.out.println("  Found Person(role) with name "+role+". Created Role to Movie "+movieName);
-						roleVertex = g.V().has("name", role).next();
-						characterVertex.addEdge("Role", roleVertex);
-						
-						roleVertex.addEdge("Role", movieVertex);
 					}
 				}
 			}
@@ -137,19 +77,40 @@ public class Main {
 	    g.tx().commit();
 	    orientGraphFactory.close();
 	}
-	
-	/**
-	 * Without '/'...
-	 * 
-	 * @param resourcePath
-	 * @return
-	 */
-	private static File[] getFilesFromResource(String resourcePath) {
-	    String path = Thread
-	    	.currentThread()
-	    	.getContextClassLoader()
-	    	.getResource(resourcePath)
-	    	.getPath();
-	    return new File(path).listFiles();
+
+	private static void createMovieYamlFilesFromWikipedia(String downloadPath) {
+		List<String> urls = Arrays.asList(
+			"https://de.wikipedia.org/wiki/Stirb_langsam",
+			"https://de.wikipedia.org/wiki/Stirb_langsam_2",
+			"https://de.wikipedia.org/wiki/Terminator_(Film)",
+			"https://de.wikipedia.org/wiki/Shining_(1980)",
+			"https://de.wikipedia.org/wiki/The_Sixth_Sense",
+			"https://de.wikipedia.org/wiki/Zimmer_1408",
+			"https://de.wikipedia.org/wiki/The_Expendables",
+			"https://de.wikipedia.org/wiki/Terminator:_Die_Erl%C3%B6sung",
+			"https://de.wikipedia.org/wiki/Odd_Thomas",
+			"https://de.wikipedia.org/wiki/Armageddon_%E2%80%93_Das_j%C3%BCngste_Gericht",
+			"https://de.wikipedia.org/wiki/Pearl_Harbor_(Film)",
+			"https://de.wikipedia.org/wiki/Terminator_2_%E2%80%93_Tag_der_Abrechnung",
+			"https://de.wikipedia.org/wiki/Terminator_3_%E2%80%93_Rebellion_der_Maschinen",
+			"https://de.wikipedia.org/wiki/Die_totale_Erinnerung_%E2%80%93_Total_Recall",
+			"https://de.wikipedia.org/wiki/L%C3%A9on_%E2%80%93_Der_Profi",
+			"https://de.wikipedia.org/wiki/22_Bullets",
+			"https://de.wikipedia.org/wiki/Die_purpurnen_Fl%C3%BCsse_2_%E2%80%93_Die_Engel_der_Apokalypse",
+			"https://de.wikipedia.org/wiki/Die_purpurnen_Fl%C3%BCsse_(Film)",
+			"https://de.wikipedia.org/wiki/Matrix_(Film)",
+			"https://de.wikipedia.org/wiki/Event_Horizon_%E2%80%93_Am_Rande_des_Universums",
+			"https://de.wikipedia.org/wiki/Matrix_Reloaded",
+			"https://de.wikipedia.org/wiki/Matrix_Revolutions",
+			"https://de.wikipedia.org/wiki/Resident_Evil:_Apocalypse",
+			"https://de.wikipedia.org/wiki/Resident_Evil_(Film)",
+			"https://de.wikipedia.org/wiki/Train_to_Busan", // from south-korea... so maybe isolated subgraph
+			"https://de.wikipedia.org/wiki/Toni_Erdmann", // from germany... so maybe isolated subgraph
+			"https://de.wikipedia.org/wiki/Silent_Hill_(Film)",
+			"https://de.wikipedia.org/wiki/Silent_Hill:_Revelation",
+			"https://de.wikipedia.org/wiki/Oldboy_(2003)" // from south-korea... so maybe isolated subgraph
+		);
+		
+		urls.stream().forEach(url -> WikipediaDataset.createYaml(url, downloadPath));
 	}
 }

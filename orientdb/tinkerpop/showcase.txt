@@ -5,56 +5,22 @@ Show everything which is reachable from Persons up to depth 10, but maximal 200 
 select * from (traverse both() from Person while $depth <= 10) limit 200
 
 Cleanup:
-delete vertex from Book
 delete vertex from Person
 delete vertex from Movie
 	  
-Show the shortest path from Dean R. Koontz to Bruce Willis:
+Show the shortest path from "Terminator: Die Erlösung" to "Matrix (Film)"
 SELECT expand(path) FROM (
   SELECT shortestPath($from, $to) AS path 
   LET 
-    $from = (SELECT FROM Person WHERE name='Dean R. Koontz'), 
-    $to = (SELECT FROM Person WHERE name='Bruce Willis') 
+    $from = (SELECT FROM Movie WHERE name='Terminator: Die Erlösung'), 
+    $to = (SELECT FROM Movie WHERE name='Matrix (Film)') 
   UNWIND path
 )
 
-You should get:
-Dean R. Koontz                   Vertex-Label: Person
-    |
-    |                            Edge-Label: Author_of
-    |
-Odd Thomas - Die Anbetung        Vertex-Label: Book
-    |
-    |                            Edge-Label: Character_of
-    |
-Odd Thomas                       Vertex-Label: Person
-    |
-    |                            Edge-Label: Role
-    |
-Anton Yelchin                    Vertex-Label: Person
-    |
-    |                            Edge-Label: Actor
-    |
-Terminator: Die Erlösung         Vertex-Label: Movie
-    |
-    |                            Edge-Label: Actor
-    |
-John Connor                      Vertex-Label: Person
-    |
-    |                            Edge-Label: Role
-    |
-Terminator 2: Tag der Abrechnung Vertex-Label: Movie
-    |
-    |                            Edge-Label: Actor
-    |
-Arnold Schwarzenegger            Vertex-Label: Person
-    |
-    |                            Edge-Label: Actor
-    |
-The Expandebles                  Vertex-Label: Movie
-    |
-    |                            Edge-Label: Actor
-    |
-Bruce Willis                     Vertex-Label: Person
+Another query:
 
-Sure, labels and properties could be optimized...
+select from (
+  traverse both() from (
+    select from Person where name = "Bruce Willis"
+  ) while $depth <= 3
+) limit 2500
