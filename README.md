@@ -1,6 +1,26 @@
 # examples
 Some small running examples and some short notes on it
 
+## orientdb-tinkerpop
+
+Downloads some actor informations of a few movies from (german) [Wikipedia](https://de.wikipedia.org/wiki/Wikipedia:Hauptseite) (parsed with [jsoup](https://jsoup.org/)). Some temporary yaml-files will be created (loaded with [Jackson](https://github.com/FasterXML/jackson)) that will serve as input to [OrientDB](https://www.orientdb.org/) (submitted with [Apache TinkerPop](https://tinkerpop.apache.org/)).
+
+The following Screenshot (OrientDB Studio) depicts a shortest path between two movies:
+
+![Image of shortestpath](https://github.com/oliverbauer/examples/blob/master/orientdb/tinkerpop/src/main/screenshots/shortestPath.jpg)
+
+Howto run: Start OrientDB
+```
+...orientdb-3.1.6/bin$ ./server.sh
+```
+and run the main class
+```
+examples/orientdb/tinkerpop$ mvn exec:java -Dexec.mainClass=io.github.orientdb.example.Main
+```
+You maybe need to create a demodb and use admin/admin as username/password - i can't remember. Otherwise change Main.java for your needs.
+
+Check out the readme.txt for some simple queries and how to remove nodes.
+
 ## libgdx-example01
 An example for [stackoverflow-question](https://stackoverflow.com/questions/63446137/3d-background-in-libgdx-without-using-blender-fbx-conv)
 
