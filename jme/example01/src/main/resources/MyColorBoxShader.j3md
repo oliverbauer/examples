@@ -1,0 +1,25 @@
+MaterialDef ColorBoxShader Material
+{
+  MaterialParameters
+  {
+    Vector4 TopColor
+    Vector4 FrontColor
+    Vector4 RightColor
+    Vector4 BackColor
+    Vector4 LeftColor
+    Vector4 BottomColor
+  }
+  Technique
+  {
+    VertexShader GLSL100: MyColorBoxShader.vert
+    FragmentShader GLSL100: MyColorBoxShader.frag
+
+    WorldParameters
+    {
+      WorldViewProjectionMatrix
+    }
+  }
+  Technique FixedFunc
+  {
+  }
+}
