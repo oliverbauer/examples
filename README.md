@@ -1,6 +1,10 @@
 # examples
 Some small running examples and some short notes on it
 
+## libgdx-mesh-experiments
+
+![Alt text](/libgdx/example02meshes/src/main/resources/screenshot.jpg?raw=true "Screenshot")
+
 ## orientdb-tinkerpop
 
 Downloads some actor informations of a few movies from (german) [Wikipedia](https://de.wikipedia.org/wiki/Wikipedia:Hauptseite) (parsed with [jsoup](https://jsoup.org/)). Some temporary yaml-files will be created (loaded with [Jackson](https://github.com/FasterXML/jackson)) that will serve as input to [OrientDB](https://www.orientdb.org/) (submitted with [Apache TinkerPop](https://tinkerpop.apache.org/)).
